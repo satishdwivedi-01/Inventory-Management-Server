@@ -6,11 +6,14 @@ export const login = asyncHandler(async (req, res) => {
 
   const token = generateToken(user);
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   res
     .cookie("token", token, {
       httpOnly: true,
-      secure: false, // true in production with https
-      sameSite: "lax",
+      secure: isProduction, // HTTPS only in production
+      sameSite: isProduction ? "none" : "lax", // cross-site for prod
+      maxAge: 1000 * 60 * 60 * 24, // optional: 1 day in ms
     })
     .json({
       message: "Login successful",
